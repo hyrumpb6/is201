@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Golf Word Scramble Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            background: #3979cd;
+            color: #fff;
+            font-family: 'Open Sans', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .game-container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            padding: 32px 24px;
+            max-width: 350px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 18px;
+            font-size: 2em;
+            letter-spacing: 1px;
+        }
+        .scrambled {
+            font-size: 2em;
+            letter-spacing: 6px;
+            margin: 24px 0;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 6px;
+            outline: none;
+            width: 80%;
+            margin-bottom: 16px;
+        }
+        button {
+            padding: 10px 22px;
+            font-size: 1em;
+            background: #fff;
+            color: #09338d;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 8px 4px;
+            font-weight: bold;
+            transition: background 0.2s, color 0.2s;
+        }
+        button:hover {
+            background: #30228b;
+            color: #fff;
+            border: 1px solid #fff;
+        }
+        .message {
+            margin: 16px 0 0;
+            min-height: 24px;
+            font-size: 1.1em;
+        }
+        .score {
+            margin-top: 18px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        a {
+            color: #fff;
+            text-decoration: underline;
+            font-size: 0.95em;
+            display: block;
+            margin-top: 22px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Golf Word Scramble</h1>
+        <div class="scrambled" id="scrambledWord">loading...</div>
+        <input type="text" id="guessInput" placeholder="Your guess" autocomplete="off" />
+        <br>
+        <button onclick="checkGuess()">Guess</button>
+        <button onclick="skipWord()">Skip</button>
+        <div class="message" id="message"></div>
+        <div class="score" id="score"></div>
+    </div>
+    <a href="golf.html">&larr; Back to Scratch Page</a>
+    <script>
+        // List of words (customize as you like!)
+        const words = [
+            "golf", "par", "eagle", "birdie", "putter", "driver", "tee", "green",
+            "fairway", "bunker", "hazard", "swing", "club", "course", "hole", "iron",
+            "chip", "putt", "rough", "flag", "caddie", "round", "match", "score"
+        ];
+
+        let currentWord = "";
+        let scrambledWord = "";
+        let score = 0;
+        let rounds = 0;
+
+        function scramble(word) {
+            let arr = word.split('');
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            // Ensure the scrambled word isn't the same as the original
+            if (arr.join('') === word) return scramble(word);
+            return arr.join('');
+        }
+
+        function pickNewWord() {
+            currentWord = words[Math.floor(Math.random() * words.length)];
+            scrambledWord = scramble(currentWord);
+            document.getElementById('scrambledWord').textContent = scrambledWord;
+            document.getElementById('guessInput').value = "";
+            document.getElementById('message').textContent = "";
+        }
+
+        function checkGuess() {
+            const guess = document.getElementById('guessInput').value.trim().toLowerCase();
+            if (!guess) {
+                document.getElementById('message').textContent = "Type your guess!";
+                return;
+            }
+            if (guess === currentWord) {
+                score++;
+                rounds++;
+                document.getElementById('message').textContent = "🎉 Correct! The word was '" + currentWord + "'.";
+                setTimeout(() => {
+                    pickNewWord();
+                    updateScore();
+                }, 1200);
+            } else {
+                rounds++;
+                document.getElementById('message').textContent = "❌ Try again!";
+            }
+            updateScore();
+        }
+
+        function skipWord() {
+            rounds++;
+            document.getElementById('message').textContent = "⏭️ Skipped! The word was '" + currentWord + "'.";
+            setTimeout(() => {
+                pickNewWord();
+                updateScore();
+            }, 1200);
+            updateScore();
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = `Score: ${score} / ${rounds}`;
+        }
+
+        // Allow Enter key for guessing
+        document.getElementById('guessInput').addEventListener('keydown', function(e) {
+            if (e.key === "Enter") checkGuess();
+        });
+
+        // Start the game
+        pickNewWord();
+        updateScore();
+    </script>
+</body>
+</html>
